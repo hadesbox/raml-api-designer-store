@@ -4,6 +4,12 @@
 
 This application provides a simple storage API plus a persistence plugin which enables you to run the [RAML API Designer](https://github.com/mulesoft/api-designer) locally (rather than use the APIHub cloud service) and still be able to manage and collaborate on your design.
 
+Its basically a combo of the current raml-store and the api designer files from the dist folder served on one instance of express.
+
+No need to configure any files or run any grunt tasks.
+
+The beta mock service does not work yet.
+
 ## Requirements
 The service is built with node.js, using express and mongodb.
 
@@ -23,12 +29,12 @@ To start mongodb as background process:
 `mongod --fork --logpath /var/log/mongodb.log`
 
 ### Installing Express and MongoDB Node.js Driver
-From the top-level directory (e.g. raml-store):
+From the top-level directory (e.g. raml-store-with-api-designer):
 
 `npm install `
 
 ## Running the Service
-From the top-level directory (e.g. raml-store):
+From the top-level directory (e.g. raml-store-with-api-designer):
 
 `node server.js`
 
@@ -42,12 +48,16 @@ If you prefer to run the server in the background [forever](http://blog.nodejits
 
 ```
 $ curl -i -X POST -H 'Content-Type: application/json' -d 
-'{"name":"myfirstapi.raml","path":"/","contents":"#%25RAML%200.8%0Atitle:%20%20%20DONE!!!"}' 
+'{"name":"test.raml","path":"/test.raml","contents":"#%25RAML%200.8%0Atitle:%20%20%20DONE!!!"}' 
 http://localhost:3000/files
 ```
 
 `$ curl -i -X GET http://localhost:3000/files`
 
-## Hosted @Rackspace
+## Running API Designer
+After starting the express server you can see the API Designer here: http://localhost:3000
 
-You can see the app here: http://10.14.213.164
+If you set a PORT environment variable to another value, the app will run on that port, i.e.:
+
+`export PORT=80`
+
