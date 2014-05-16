@@ -4,7 +4,7 @@
 
 This application provides a simple storage API plus a persistence plugin which enables you to run the [RAML API Designer](https://github.com/mulesoft/api-designer) locally (rather than use the APIHub cloud service) and still be able to manage and collaborate on your design.
 
-Its basically a combo of the current raml-store and the api designer files from the dist folder served on one instance of express.
+Its basically a combo of the current [raml-store project](https://github.com/brianmc/raml-store) and the [RAML API Designer](https://github.com/mulesoft/api-designer) files from the dist folder served on one instance of express.
 
 No need to configure any files or run any grunt tasks.
 
