@@ -79,14 +79,22 @@ angular.module('ramlEditorApp')
           withCredentials: false
         }).success(function (data) {
           var ramlFiles = [];
-          Object.keys(data).forEach(function (id) {
-            files[data[id].path] = id;
-            ramlFiles.push({path: data[id].path, content: decodeURI(data[id].content)});
-          });
-
+          console.log("data is +++",data,"+++");
+          if(data.status=="ok"){
+            Object.keys(data.response).forEach(function (id) {
+              files[data.response[id].path] = id;
+              ramlFiles.push({path: data.response[id].path, content: decodeURI(data.response[id].content)});
+            });
+          }
+          else{
+            alert(data.message)
+          }
           deferred.resolve({path: '/', meta: {}, children: ramlFiles});
         })
-            .error(deferred.reject.bind(deferred));
+        .error(function(){ 
+          console.log("error", deferred);
+          deferred.reject.bind(deferred);
+        });
 
         return deferred.promise;
       };
