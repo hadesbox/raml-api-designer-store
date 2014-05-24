@@ -5,6 +5,13 @@ routes = require('./routes/');
  
 var app = express();
 
+
+var mongo = require('mongodb');
+
+var Server = mongo.Server,
+  Db = mongo.Db,
+  BSON = mongo.BSONPure;
+
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.use(express.logger('dev'));
@@ -50,13 +57,27 @@ app.get('/', checkAuth, routes.index);
 app.post('/login', function (req, res) {
   console.log("trying to login...", req.body);
   var post = req.body;
-  if (post.login === 'john' && post.password === 'johnspassword') {
-    console.log("session is", req.session);
-    req.session.user_id = 12;
-    res.redirect('/');
-  } else {
-    res.send('Bad username and user/pass');
-  }
+  db.collection('users', function (err, collection) {
+      if(!post.login ||  !post.password)
+        res.redirect("/login.html?user="+post.login+"&empty=");
+      else
+        collection.findOne({'mail': post.login}, function (err, item) {
+          console.log(err, item);
+          //res.header("Access-Control-Allow-Origin", "*");
+          if(!item || err){
+            res.redirect("/login.html?user="+post.login+"&badpass=");
+          }
+          else{
+            if(post.password == item.pass){
+              req.session.user_id = item._id
+              res.redirect("/");
+            }
+            else{
+              res.redirect("/login.html?badpass=");  
+            }          
+          }
+        });
+  });
 });
 
 app.get('/logout', function (req, res) {

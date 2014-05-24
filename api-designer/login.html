@@ -12,13 +12,56 @@
   <link rel="stylesheet" href="styles/main.css"/>
 </head>
 <body ng-app="ramlEditorApp" class="{{$root.theme}}">
-  <div class="container">
+  <div class="container" style="text-align: center;">
       <form name="input" action="login" method="post" ua-login ua-error="error-msg">
-        <input name="login" placeholder="Username"><br>
-        <input name="password" placeholder="Password" type="password"><br>
+        <input id="input_login" name="login" placeholder="Username"><br>
+        <input id="input_pass" name="password" placeholder="Password" type="password"><br>
         <button type="submit">Log in</button>
         <p id="error-msg"></p>
     </form>
   </div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<script src="scripts/vendor.js"></script>
+
+<script src="scripts/main.js"></script>
+
+<script> 
+
+    function getVarFromURL(varName){
+          var url = window.location.href;
+          url = url.substring(url.indexOf('?'));
+          var urlLowerCase = url.toLowerCase();
+          varName = varName.toLowerCase();
+          if (urlLowerCase.indexOf(varName + "=") != -1) {
+              var value = url.substring(urlLowerCase.indexOf(varName) + varName.length + 1);
+              if (value.indexOf('&') != -1) {
+                  value = value.substring(0, value.indexOf('&'));
+              }
+              console.log("return some >" , value, "<");
+              return value;
+          }
+          else {
+              console.log("return null;")
+              return null;
+          }
+    } 
+
+    if(getVarFromURL("empty") != null){
+      alert("Empty username or password.");
+      angular.element('#input_login').focus();
+    }
+    else if (getVarFromURL("badpass") != null){
+      alert("Wrong username or password.")
+      angular.element('#input_pass').focus();
+    }
+
+    user = getVarFromURL("user");
+    if(user){
+      angular.element('#input_login').val(user);
+    }    
+
+</script>    
 </body>
 </html>

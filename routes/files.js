@@ -21,20 +21,20 @@ db.open(function (err, db) {
 
 exports.findById = function (req, res) {
   console.log('Retrieving file: ' + req.params.id);
-  if(typeof req.params.id === 'undefined'){
+   if(req.params.id == 'undefined' || req.params.id  === null){
   	res.httpStatus = 404;
     res.send(JSON.stringify({status: "error", response: "invalid id"}));
   }
   else{
-  	  var id = req.params.id;
-	  db.collection('files', function (err, collection) {
-	    collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
-	      delete item._id;
-	      res.header("Access-Control-Allow-Origin", "*");
-	      res.send(item);
-	    });
-	  });
-   }
+ 	  var id = req.params.id;
+ 	  db.collection('files', function (err, collection) {
+ 	    collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
+ 	      delete item._id;
+ 	      res.header("Access-Control-Allow-Origin", "*");
+ 	      res.send(item);
+ 	    });
+ 	  });
+  }
 };
 
 exports.findAll = function (req, res) {

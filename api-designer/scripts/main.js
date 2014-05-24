@@ -1992,6 +1992,7 @@
         };
       }
       service.getDirectory = function getDirectory(path) {
+        console.log("getDirectory for", path);
         path = path || defaultPath;
         return fileSystem.directory(path).then(function (folder) {
           return new RamlDirectory(folder.path, folder.meta, folder.children);
@@ -2016,6 +2017,7 @@
         return promise.then(modifyFile, handleErrorFor(file));
       };
       service.loadFile = function loadFile(file) {
+        console.log("loading File", file);
         function modifyFile(data) {
           file.dirty = false;
           file.persisted = true;
@@ -2062,9 +2064,13 @@
         ;
       };
       service.loadMeta = function loadMeta(file) {
+        console.log("loading meta for " ,file);;
         var metaFile = new RamlFile(file.path + '.meta');
         return service.loadFile(metaFile).then(function success(file) {
-          return JSON.parse(file.contents);
+          if(file.contents != "undefined")
+            return JSON.parse(file.contents);
+          else
+            return {};
         }, function failure() {
           return {};
         });
