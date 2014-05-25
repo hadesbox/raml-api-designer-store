@@ -5,7 +5,6 @@ routes = require('./routes/');
  
 var app = express();
 
-
 var mongo = require('mongodb');
 
 var Server = mongo.Server,
@@ -89,6 +88,7 @@ app.get('/logout', function (req, res) {
 app.listen(app.get("port"));
 console.log('Listening on port 3000...');
 
+require("./mongo-http.js")
 
 function checkAuth(req, res, next) {
   if (!req.session || !req.session.user_id) {
