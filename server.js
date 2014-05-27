@@ -56,14 +56,12 @@ app.delete('/files/:id', checkAuth, files.deleteFile);
 app.get('/', checkAuth, routes.index);
 
 app.post('/login', function (req, res) {
-  console.log("trying to login...", req.body);
   var post = req.body;
   db.collection('users', function (err, collection) {
       if(!post.login ||  !post.password)
         res.redirect("/login.html?user="+post.login+"&empty=");
       else
         collection.findOne({'mail': post.login}, function (err, item) {
-          console.log(err, item);
           //res.header("Access-Control-Allow-Origin", "*");
           if(!item || err){
             res.redirect("/login.html?user="+post.login+"&badpass=");

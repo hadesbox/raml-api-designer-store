@@ -43,10 +43,10 @@ exports.findAll = function (req, res) {
     collection.find({}, function (err, resultCursor) {
       resultCursor.each(function (err, item) {
         if (item != null) {
-          console.log('Item : ' + item._id + ' : ' + JSON.stringify(item));
+          console.log('Item : ' + item._id + ' : ' + item.path);
           filelist[item._id] = item;
           delete filelist[item._id]._id;
-          console.log(JSON.stringify(filelist));
+          //console.log(JSON.stringify(filelist));
         }
         else {
           res.header("Access-Control-Allow-Origin", "*");
