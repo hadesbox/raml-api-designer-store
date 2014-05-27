@@ -887,7 +887,9 @@
         }
       };
       service.configureEditor = function (editor, extension) {
+        //console.log("configureEditor", editor, extension);
         var mode = MODES[extension] || MODES.raml;
+        console.log("mode is", mode);
         editor.setOption('mode', mode);
         if (mode.name === 'raml') {
           editor.setOption('extraKeys', ramlKeys);
@@ -1992,7 +1994,7 @@
         };
       }
       service.getDirectory = function getDirectory(path) {
-        console.log("getDirectory for", path);
+        //console.log("getDirectory for", path);
         path = path || defaultPath;
         return fileSystem.directory(path).then(function (folder) {
           return new RamlDirectory(folder.path, folder.meta, folder.children);
@@ -2018,7 +2020,7 @@
         return promise.then(modifyFile, handleErrorFor(file));
       };
       service.loadFile = function loadFile(file) {
-        console.log("loading File", file);
+        //console.log("loading File", file);
         function modifyFile(data) {
           file.dirty = false;
           file.persisted = true;
@@ -2065,7 +2067,7 @@
         ;
       };
       service.loadMeta = function loadMeta(file) {
-        console.log("loading meta for " ,file);;
+        //console.log("loading meta for " ,file);;
         var metaFile = new RamlFile(file.path + '.meta');
         return service.loadFile(metaFile).then(function success(file) {
           if(file.contents != "undefined")
@@ -2763,10 +2765,6 @@
         $modal.open({ templateUrl: 'views/help.html' });
       };
       $scope.getIsFileParsable = function getIsFileParsable(file, contents) {
-        // check for file extension
-        if (file.extension !== 'raml') {
-          return false;
-        }
         // check for raml version tag as a very first line of the file
         contents = arguments.length > 1 ? contents : file.contents;
         if (contents.search(/^\s*#%RAML( \d*\.\d*)?\s*(\n|$)/) !== 0) {
