@@ -13,6 +13,11 @@
 </head>
 <body ng-app="ramlEditorApp" class="{{$root.theme}}">
   <div class="container" style="text-align: center;">
+      <br/><br/>
+      <img src="/images/logo.png" alt="Raml Api Designer">
+      <br/>
+      Api Designer
+      <br/><br/>
       <form name="input" action="login" method="post" ua-login ua-error="error-msg">
         <input id="input_login" name="login" placeholder="Username"><br>
         <input id="input_pass" name="password" placeholder="Password" type="password"><br>
@@ -39,11 +44,11 @@
               if (value.indexOf('&') != -1) {
                   value = value.substring(0, value.indexOf('&'));
               }
-              console.log("return some >" , value, "<");
+              //console.log("return some >" , value, "<");
               return value;
           }
           else {
-              console.log("return null;")
+              //console.log("return null;")
               return null;
           }
     } 
