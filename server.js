@@ -3,6 +3,8 @@ var express = require('express'),
 files = require('./routes/files'),
 routes = require('./routes/');
  
+var util = require('./api-designer/scripts/sha1.js');
+
 var app = express();
 
 var mongo = require('mongodb');
@@ -67,7 +69,8 @@ app.post('/login', function (req, res) {
             res.redirect("/login.html?user="+post.login+"&badpass=");
           }
           else{
-            if(post.password == item.pass){
+            hashedPass = util.Sha1.hash(post.password);
+            if(hashedPass == item.pass){
               req.session.user_id = item._id
               res.redirect("/");
             }
@@ -98,4 +101,5 @@ function checkAuth(req, res, next) {
     next();
   }
 }
+
 
