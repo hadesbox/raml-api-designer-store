@@ -87,14 +87,15 @@ angular.module('ramlEditorApp')
           withCredentials: false
         }).success(function (data) {
           var ramlFiles = [];
-          console.log("data is +++",data,"+++");
+          //console.log("data is +++",data,"+++");
           if(data.status=="ok"){
             Object.keys(data.response).forEach(function (id) {
 
-              console.log("@@ path:", data.response[id].path,", content: ",decodeURI(data.response[id].content));
+              //console.log("@@ path:", data.response[id].path,", content: ",decodeURI(data.response[id].content));
 
               files[data.response[id].path] = id;
               ramlFiles.push({path: data.response[id].path, content: decodeURI(data.response[id].content)});
+              //console.log("path is ",data.response[id].path);
             });
           }
           else{
@@ -186,7 +187,7 @@ angular.module('ramlEditorApp')
        * Loads the content of a file.
        */
       service.load = function (path) {
-        console.log("path:",path);
+        //console.log("path:",path);
         var deferred = $q.defer();
         $http({
           method: 'GET',
