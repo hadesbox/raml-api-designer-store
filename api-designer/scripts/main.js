@@ -18,7 +18,8 @@
     '$window',
     function ($window) {
       // Adding proxy settings for api console
-      $window.RAML.Settings.proxy = '/proxy/';
+      // $window.RAML.Settings.proxy = '/proxy/';
+      $window.RAML.Settings.proxy = 'http://54.247.108.54:10000/?proxy=';
     }
   ]);
   ;
