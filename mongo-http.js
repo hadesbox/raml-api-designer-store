@@ -9,7 +9,7 @@ http.createServer(function (req, res) {
 	var url_parts = url.parse(req.url, true);
 	var query = url_parts.query;
 
-	//console.log(url_parts);
+	console.log(url_parts);
 	//console.log(req);
 
 	if(req.url === "/favicon.ico"){
@@ -17,19 +17,21 @@ http.createServer(function (req, res) {
 		res.end("no favicon");
 	}
 	else if(query["proxy"]){
-		var url_parts = url.parse(query["proxy"], true);
+		//var url_parts = url.parse(query["proxy"], true);
+		var url_parts = url.parse(url_parts.search.substring(7), true);
+		//var url_parts = url_parts.search.substring(7);//.parse(query["proxy"], true);
+		console.log("hola", url_parts);
 		var query = url_parts.query;		
 		if(url_parts.protocol == "http:"){
-			console.log("is http: call", url_parts.protocol, url_parts.pathname);
-			/*			
+			//console.log("is http: call", url_parts.protocol, url_parts.pathname);
 			console.log("parts", url_parts);
-			console.log("query", query);
-			console.log("port will be",(url_parts.port != null ? url_parts.port : 80));
-			*/
+			//console.log("query", query);
+			//console.log("port will be",(url_parts.port != null ? url_parts.port : 80));
+			
 			var options = {
 			  host: url_parts.hostname, 
 			  port: (url_parts.port != null ? url_parts.port : 80),
-			  path: url_parts.pathname,
+			  path: url_parts.path,
 			  method: req.method
 			};
 			proxyBody = "";
@@ -41,12 +43,10 @@ http.createServer(function (req, res) {
 			    proxyBody+=chunk;
 			  });
 			  resProxy.on('end', function (chunk) {
-			    console.log('terminado');
-			    resProxy.headers['Access-Control-Allow-Origin'] = '*';
-			    resProxy.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS';
-			    resProxy.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Content-Length, X-Requested-With';
-			    //console.log(resProxy.headers);
-				res.writeHead(resProxy.statusCode, resProxy.headers);
+			    if(undefined == resProxy.headers['access-control-allow-origin']) resProxy.headers['access-control-allow-origin'] = '*';
+			    if(undefined == resProxy.headers['access-control-allow-methods']) resProxy.headers['access-control-allow-methods'] = 'GET,PUT,POST,DELETE,OPTIONS';
+			    if(undefined == resProxy.headers['access-control-allow-headers']) resProxy.headers['access-control-allow-headers'] = 'Content-Type, Authorization, Content-Length, X-Requested-With';
+	                    res.writeHead(resProxy.statusCode, resProxy.headers);
 			    res.end(proxyBody);
 			  });
 			}).end();
