@@ -35,6 +35,38 @@ switched to db ramldb
 > 
 ```
 
+Then you will be able to login and create RAML documents as normal
+
+![API Designer login page](http://i.imgur.com/HQwtye2.png)
+
 All RAML documents can only be edited by its owner, which is the user that created the RAML file.
 
-Also I removed the restriction of the codemirror so you can pretty much name your RAML whatever you field (doesn't need to have the .raml extension), the codemirror will still look for the RAML header, withing each document and if its a RAML it will enable the the helpers.
+Also I removed the restriction of the codemirror so you can pretty much name your RAML whatever you feel (doesn't need to have the .raml extension anymore), the codemirror will still look for the RAML header in the __content__ of each document and if its a RAML it will enable the the side bar helpers.
+
+
+#### RestAPI Publisher with CORS (http://localhost:10000/YOURAPI)
+
+This service will publish all the Raml files in an easy to access rest format, so they can be referenced in the API Notebook, API Console etc... the reason for making them public, is that we WANT everyone to know our RAML API implementations, there is no need to have hidden RAML so if the APIs integrators want to have access to the RAML source file, they can do it!
+
+Lets say your raml file in the API Designer its called __myapi__, 
+
+![RAML Rest service with CORS](http://i.imgur.com/rsWPtgz.png)
+
+this means you will have your Raml file publicly available at http://localhost:10000/myapi
+
+![RAML Rest service with CORS](http://i.imgur.com/pY15BWO.png)
+
+
+This is very convenient also to extract JSON/XML examples or schemas into separate files, lets say you want extract this schema
+
+![RAML Rest service with CORS](http://i.imgur.com/s0brwb8.png)
+
+into a separate file called __myapi/song.schema.son__ (for convention we use this structure for naming schemas and examples, so we know later on to which RAML spec file it belongs).
+
+![RAML Rest service with CORS](http://i.imgur.com/VrEiyEa.png)
+
+And then you can use the __!include localhost:10000/myapi/song.schema.json__ on the schema property, this will make your RAML files more tidy.
+
+![RAML Rest service with CORS](http://i.imgur.com/cmP4Fnj.png)
+
+
