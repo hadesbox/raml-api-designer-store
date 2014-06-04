@@ -1,11 +1,11 @@
 # RAML API Designer with spices
 
-=======================
-
 This is a modified version of the raml API Designer, so it can be hosted with a user authentication and filters with raml files owned by each user.
 
 
 ### Kicking it!!!
+
+remember you must have a runing mongodb in the same machine, so the whole project works.
 
 to install simply do a __npm install__ after you have cloned the repo.
 
@@ -70,3 +70,6 @@ And then you can use the __!include localhost:10000/myapi/song.schema.json__ on 
 ![RAML Rest service with CORS](http://i.imgur.com/cmP4Fnj.png)
 
 
+#### Installing on a server
+
+You will need to have a mongo running on the server, and it can be easly daemonized with __forever start server.js__.
