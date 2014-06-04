@@ -4,7 +4,7 @@ var Server = mongo.Server,
   Db = mongo.Db,
   BSON = mongo.BSONPure;
 
-var server = new Server('localhost', 27017, {auto_reconnect: true});
+var server = new Server('localhost', 27017, {auto_reconnect: true, journal: true, safe:false});
 db = new Db('ramldb', server);
 
 db.open(function (err, db) {
@@ -20,31 +20,37 @@ db.open(function (err, db) {
 });
 
 exports.findById = function (req, res) {
-  var id = req.params.id;
-  console.log('Retrieving file: ' + id);
-  db.collection('files', function (err, collection) {
-    collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
-      delete item._id;
-      res.header("Access-Control-Allow-Origin", "*");
-      res.send(item);
-    });
-  });
+  console.log('Retrieving file: ' + req.params.id);
+   if(req.params.id == 'undefined' || req.params.id  === null){
+  	res.httpStatus = 404;
+    res.send(JSON.stringify({status: "error", response: "invalid id"}));
+  }
+  else{
+ 	  var id = req.params.id;
+ 	  db.collection('files', function (err, collection) {
+ 	    collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
+ 	      delete item._id;
+ 	      res.header("Access-Control-Allow-Origin", "*");
+ 	      res.send(item);
+ 	    });
+ 	  });
+  }
 };
 
 exports.findAll = function (req, res) {
   var filelist = new Object();
   db.collection('files', function (err, collection) {
-    collection.find({}, function (err, resultCursor) {
+    collection.find({'owner': req.session.user_id}, function (err, resultCursor) {
       resultCursor.each(function (err, item) {
         if (item != null) {
-          console.log('Item : ' + item._id + ' : ' + JSON.stringify(item));
+          console.log('Item : ' + item._id + ' : ' + item.path);
           filelist[item._id] = item;
           delete filelist[item._id]._id;
-          console.log(JSON.stringify(filelist));
+          //console.log(JSON.stringify(filelist));
         }
         else {
           res.header("Access-Control-Allow-Origin", "*");
-          res.send(JSON.stringify(filelist));
+          res.send(JSON.stringify({status: "ok", response: filelist}));
         }
       });
     });
@@ -55,7 +61,7 @@ exports.findAll = function (req, res) {
 exports.addFile = function (req, res) {
   var file = req.body;
   console.log('Adding file : ' + JSON.stringify(file));
-
+  file.owner = req.session.user_id;
   db.collection('files', function (err, collection) {
     collection.insert(file, {safe: true}, function (err, result) {
       if (err) {
@@ -75,6 +81,7 @@ exports.updateFile = function (req, res) {
   console.log('Updating file: ' + id);
   console.log(JSON.stringify(file));
 
+  file.owner = req.session.user_id;
   db.collection('files', function (err, collection) {
     collection.update({'_id': new BSON.ObjectID(id)}, file, {safe: true}, function (err, result) {
       if (err) {

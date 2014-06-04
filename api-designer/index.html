@@ -21,13 +21,9 @@
 <script src="scripts/main.js"></script>
 
 <script>
+
 angular.module('ramlEditorApp')
     .factory('MyFileSystem', function ($http, $q) {
-
-//angular.module('fs')
-//  .constant('API_PERSISTENCE_KEY','apiStorageFilePersistence')
-//  .constant('FOLDER', 'folder')
-//  .factory('apiStorageFileSystem', function ($http, $q, $timeout, localStorageHelper, FOLDER) {
 
       var files = {};
 
@@ -43,6 +39,18 @@ angular.module('ramlEditorApp')
       var service = {};
 
       var url = "/files/";
+
+      function errorFunction(data, status, headers, config) {
+          if(status >= 401){
+            window.location = "/login.html";
+          }
+/*
+            console.log("error1", data);
+            console.log("error2", status);
+            console.log("error3",  headers);
+            console.log("error4", config);
+*/
+      }
 
       function validatePath(path) {
         if (path.indexOf('/') !== 0) {
@@ -79,15 +87,23 @@ angular.module('ramlEditorApp')
           withCredentials: false
         }).success(function (data) {
           var ramlFiles = [];
-          Object.keys(data).forEach(function (id) {
-            files[data[id].path] = id;
-            ramlFiles.push({path: data[id].path, content: decodeURI(data[id].content)});
-          });
+          //console.log("data is +++",data,"+++");
+          if(data.status=="ok"){
+            Object.keys(data.response).forEach(function (id) {
 
+              //console.log("@@ path:", data.response[id].path,", content: ",decodeURI(data.response[id].content));
+
+              files[data.response[id].path] = id;
+              ramlFiles.push({path: data.response[id].path, content: decodeURI(data.response[id].content)});
+              //console.log("path is ",data.response[id].path);
+            });
+          }
+          else{
+            alert(data.message)
+          }
           deferred.resolve({path: '/', meta: {}, children: ramlFiles});
         })
-            .error(deferred.reject.bind(deferred));
-
+        .error(errorFunction);
         return deferred.promise;
       };
 
@@ -135,9 +151,8 @@ angular.module('ramlEditorApp')
             files[path] = data._id;
             deferred.resolve();
           })
-              .error(deferred.reject.bind(deferred));
+          .error(deferred.reject.bind(deferred));
         }
-
         return deferred.promise;
       };
 
@@ -172,8 +187,8 @@ angular.module('ramlEditorApp')
        * Loads the content of a file.
        */
       service.load = function (path) {
+        //console.log("path:",path);
         var deferred = $q.defer();
-
         $http({
           method: 'GET',
           data: '',
