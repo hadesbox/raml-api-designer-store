@@ -92,12 +92,18 @@ console.log('Listening on port 3000...');
 require("./mongo-http.js")
 
 function checkAuth(req, res, next) {
+  //user login disabled
+  next();
+  return;
+  /*
   if (!req.session || !req.session.user_id) {
+  	//if we cannot find the session of the user, then the user is not authenticate
     res.statusCode = 401;
     res.send({status:"error", message:"You are not authorized to view this page"});
   } else {
     next();
   }
+  */
 }
 
 

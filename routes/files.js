@@ -40,7 +40,8 @@ exports.findById = function (req, res) {
 exports.findAll = function (req, res) {
   var filelist = new Object();
   db.collection('files', function (err, collection) {
-    collection.find({'owner': req.session.user_id}, function (err, resultCursor) {
+    //collection.find({'owner': req.session.user_id}, function (err, resultCursor) { // we find all documents for the current session user
+    collection.find({}, function (err, resultCursor) {
       resultCursor.each(function (err, item) {
         if (item != null) {
           console.log('Item : ' + item._id + ' : ' + item.path);
@@ -61,7 +62,7 @@ exports.findAll = function (req, res) {
 exports.addFile = function (req, res) {
   var file = req.body;
   console.log('Adding file : ' + JSON.stringify(file));
-  file.owner = req.session.user_id;
+  //file.owner = req.session.user_id;
   db.collection('files', function (err, collection) {
     collection.insert(file, {safe: true}, function (err, result) {
       if (err) {
@@ -80,8 +81,7 @@ exports.updateFile = function (req, res) {
   var file = req.body;
   console.log('Updating file: ' + id);
   console.log(JSON.stringify(file));
-
-  file.owner = req.session.user_id;
+  //file.owner = req.session.user_id;
   db.collection('files', function (err, collection) {
     collection.update({'_id': new BSON.ObjectID(id)}, file, {safe: true}, function (err, result) {
       if (err) {
