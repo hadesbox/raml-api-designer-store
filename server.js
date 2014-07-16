@@ -70,6 +70,7 @@ app.post('/login', function (req, res) {
             hashedPass = util.Sha1.hash(post.password);
             if(hashedPass == item.pass){
               req.session.user_id = item._id
+              req.session.admin = (item.admin===false || item.admin===true? item.admin : false);
               res.redirect("/");
             }
             else{

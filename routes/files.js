@@ -40,7 +40,9 @@ exports.findById = function (req, res) {
 exports.findAll = function (req, res) {
   var filelist = new Object();
   db.collection('files', function (err, collection) {
-    collection.find({'owner': req.session.user_id}, function (err, resultCursor) {
+    //if the user is admin, we fetch ALL documents, if he is we only fetch owned
+    query = (req.session.admin?{}:{'owner': req.session.user_id});
+    collection.find(query, function (err, resultCursor) {
       resultCursor.each(function (err, item) {
         if (item != null) {
           console.log('Item : ' + item._id + ' : ' + item.path);
