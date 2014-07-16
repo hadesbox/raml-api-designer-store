@@ -76,9 +76,16 @@ http.createServer(function (req, res) {
 				  rejectUnauthorized: false,
 			      requestCert: true,
 			      agent: false
-				}			
+				};			
+
+				if(req.method=="POST"){
+					options.headers = { "content-type": "application/json; charset=utf-8", "content-length": bodyRequest.length}; 
+					//console.log("options for request are", options);
+				}
+
+
 				proxyBody = "";
-				https.request(options, function(resProxy) {
+				reqhttps = https.request(options, function(resProxy) {
 				  //console.log('STATUS: ' + resProxy.statusCode);
 				  //console.log('HEADERS: ' + JSON.stringify(resProxy.headers));
 				  resProxy.setEncoding('utf8');
@@ -94,8 +101,13 @@ http.createServer(function (req, res) {
 					res.writeHead(resProxy.statusCode, resProxy.headers);
 				    res.end(proxyBody);
 				  });
-				}).end();
+				});
 
+				if(req.method=="POST"){
+					//console.log("body to post is", bodyRequest);
+					reqhttps.write(bodyRequest)
+			 	}	
+				reqhttps.end();
 			}
 			else {
 				console.log("protocol Error");
