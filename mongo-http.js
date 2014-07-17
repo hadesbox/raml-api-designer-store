@@ -6,34 +6,23 @@ var url = require('url');
 
 http.createServer(function (req, res) {
 
-	var url_parts = url.parse(req.url, true);
-	query = url_parts.query;
-
-	console.log(url_parts);
-	//console.log(req);
+	console.log("REQUEST URL IS", req.url);
 
 	if(req.url === "/favicon.ico"){
-		console.log("will try to proxy");
+		console.log("ignoring favicon");
 		res.end("no favicon");
 	}
-	else if(query["proxy"]){
+	else if(req.url.substring(0, 7) == "/proxy/"){
 		var bodyRequest = "";
 		req.on("data", function(chunkRequest){
 			//console.log("event data", chunkRequest);
 			bodyRequest+=chunkRequest;
 		});
-		url_parts = url.parse(url_parts.search.substring(7), true);
+
+		var url_parts = url.parse(req.url.substring(7), true);
+
 		req.on("end", function(){
-			//console.log("event end", url_parts, "fin");
-			//var url_parts = url.parse(query["proxy"], true);
-			//var url_parts = url_parts.search.substring(7);//.parse(query["proxy"], true);
-			//console.log("url_parts", url_parts);
-			var query = url_parts.query;		
 			if(url_parts.protocol == "http:"){
-				//console.log("is http: call", url_parts.protocol, url_parts.pathname);
-				//console.log("query", query);
-				//console.log("port will be",(url_parts.port != null ? url_parts.port : 80));
-				//console.log("headers are", req.headers);
 				var options = {
 				  host: url_parts.hostname, 
 				  port: (url_parts.port != null ? url_parts.port : 80),

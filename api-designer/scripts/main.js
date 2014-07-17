@@ -18,8 +18,7 @@
     '$window',
     function ($window) {
       // Adding proxy settings for api console
-      $window.RAML.Settings.proxy = '/proxy/';
-      //$window.RAML.Settings.proxy = 'http://XX.XX.XX.XX:10000/?proxy=';
+      $window.RAML.Settings.proxy = 'http://localhost:10000/proxy/';
     }
   ]);
   ;
@@ -888,9 +887,7 @@
         }
       };
       service.configureEditor = function (editor, extension) {
-        //console.log("configureEditor", editor, extension);
         var mode = MODES[extension] || MODES.raml;
-        //console.log("mode is", mode);
         editor.setOption('mode', mode);
         if (mode.name === 'raml') {
           editor.setOption('extraKeys', ramlKeys);

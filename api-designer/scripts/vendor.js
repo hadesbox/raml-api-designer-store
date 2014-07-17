@@ -65034,9 +65034,8 @@ RAML.Inspector = (function() {
       this.missingUriParameters = true;
       return;
     }
-
     if (RAML.Settings.proxy) {
-      url = RAML.Settings.proxy + url;
+      url = RAML.Settings.proxy + url+"?";
     }
     var request = RAML.Client.Request.create(url, this.httpMethod);
 
