@@ -6,7 +6,7 @@ var url = require('url');
 
 http.createServer(function (req, res) {
 
-	console.log("REQUEST URL IS", req.url);
+	//console.log("REQUEST URL IS", req.url);
 
 	if(req.url === "/favicon.ico"){
 		console.log("ignoring favicon");
@@ -20,28 +20,37 @@ http.createServer(function (req, res) {
 		});
 
 		var url_parts = url.parse(req.url.substring(7), true);
+		//console.log("URL PARTS ARE", url_parts);
 
 		req.on("end", function(){
+			//console.log("METHOD IS", req.method);
+			//console.log("HEADERS IS", req.headers);
 			if(url_parts.protocol == "http:"){
 				var options = {
 				  host: url_parts.hostname, 
 				  port: (url_parts.port != null ? url_parts.port : 80),
 				  path: url_parts.path,
-				  method: req.method 
+				  method: req.method
 				};
-				if(req.method=="POST"){
-					options.headers = { "content-type": "application/json; charset=utf-8", "content-length": bodyRequest.length}; 
-					//console.log("options for request are", options);
+				//we include origin request headers!
+				options.headers = {};
+				for (key in req.headers) {
+					//console.log(key, req.headers[key], key.substring(0,11));	
+					if("x-forwarded" != key.substring(0,11) && key != 'referer' && key != 'host' && key != 'accept-encoding'){
+						options.headers[key] = req.headers[key];
+					}
 				}
 				proxyBody = "";
+				//console.log("options for request are", options);
 				reqhttp = http.request(options, function(resProxy) {
-				  //console.log('STATUS: ' + resProxy.statusCode);
-				  //console.log('HEADERS: ' + JSON.stringify(resProxy.headers));
+				  //console.log('STATUS RESPONSE: ' + resProxy.statusCode);
+				  //console.log('HEADER RESPONSE: ' + JSON.stringify(resProxy.headers));
 				  resProxy.setEncoding('utf8');
 				  resProxy.on('data', function (chunk) {
 				    proxyBody+=chunk;
 				  });
 				  resProxy.on('end', function () {
+				    // console.log(proxyBody);
 			            //console.log("end");
 				    if(undefined == resProxy.headers['access-control-allow-origin']) resProxy.headers['access-control-allow-origin'] = '*';
 				    if(undefined == resProxy.headers['access-control-allow-methods']) resProxy.headers['access-control-allow-methods'] = 'GET,PUT,POST,DELETE,OPTIONS';
@@ -66,13 +75,20 @@ http.createServer(function (req, res) {
 			      requestCert: true,
 			      agent: false
 				};			
-
-				if(req.method=="POST"){
-					options.headers = { "content-type": "application/json; charset=utf-8", "content-length": bodyRequest.length}; 
-					//console.log("options for request are", options);
+				//we include origin request headers!
+				options.headers = {};
+				for (key in req.headers) {
+					//console.log(key, req.headers[key], key.substring(0,11));	
+					if("x-forwarded" != key.substring(0,11) && key != 'referer' && key != 'host' && key != 'accept-encoding'){
+						options.headers[key] = req.headers[key];
+					}
 				}
 
-
+/*
+				if(req.method=="POST"){
+					options.headers = { "content-type": "application/json; charset=utf-8", "content-length": bodyRequest.length}; 
+				}
+*/
 				proxyBody = "";
 				reqhttps = https.request(options, function(resProxy) {
 				  //console.log('STATUS: ' + resProxy.statusCode);
@@ -82,7 +98,7 @@ http.createServer(function (req, res) {
 				    proxyBody+=chunk;
 				  });
 				  resProxy.on('end', function (chunk) {
-				    console.log('terminado');
+				    //console.log('terminado');
 				    resProxy.headers['Access-Control-Allow-Origin'] = '*';
 				    resProxy.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS';
 				    resProxy.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Content-Length, X-Requested-With';
