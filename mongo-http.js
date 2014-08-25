@@ -1,8 +1,31 @@
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
-var MongoClient = require('mongodb').MongoClient;
 var url = require('url');
+
+var mongo = require('mongodb');
+
+var Server = mongo.Server,
+    Db = mongo.Db,
+    BSON = mongo.BSONPure;
+
+var server = new Server('localhost', 27017, { auto_reconnect: true });
+
+db = new Db('ramldb', server);
+
+db.open(function(err, db) {
+    if (!err) {
+        console.log("Connected to 'ramldb' database");
+        db.collection('files', {
+            strict: true
+        }, function(err, collection) {
+            if (err) {
+                console.log("The 'files' collection doesn't exist. Use POST to add RAML files...");
+                populateDB();
+            }
+        });
+    }
+});
 
 http.createServer(function (req, res) {
 
@@ -122,7 +145,7 @@ http.createServer(function (req, res) {
 	}
 	else{
 		console.log("looking for file", req.url);
-		MongoClient.connect("mongodb://localhost:27017/ramldb", function(err, db) {
+		//MongoClient.connect("mongodb://localhost:27017/ramldb", function(err, db) {
 			db.collection('files', function (err, collection) {
 				collection.findOne({'path': req.url}, function (err, item) {
 					if(!item || err){
@@ -135,7 +158,7 @@ http.createServer(function (req, res) {
 					}          
 				});
 			});
-		});		
+		//});		
 	}
 
 }).listen(10000);
