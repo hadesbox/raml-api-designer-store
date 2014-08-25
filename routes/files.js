@@ -19,6 +19,10 @@ db.open(function (err, db) {
   }
 });
 
+exports.pong = function (req, res) {
+  res.send("pong!");
+};
+
 exports.findById = function (req, res) {
   console.log('Retrieving file: ' + req.params.id);
    if(req.params.id == 'undefined' || req.params.id  === null){

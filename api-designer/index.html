@@ -267,6 +267,35 @@ angular.module('ramlEditorApp')
 
     });
 
+    var stimeout = 60000;
+
+    setTimeout(ping, stimeout);
+
+    function ping(){
+      var xmlhttp;
+      if (window.XMLHttpRequest) {
+        xmlhttp=new XMLHttpRequest();
+      }
+      else {
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      xmlhttp.onreadystatechange = isReady;
+      function isReady() {
+        if(xmlhttp.readyState < 4) {
+          return;
+        }
+        if(xmlhttp.status !== 200) {
+          return;
+        }
+        if(xmlhttp.readyState === 4) {
+          console.log(new Date(), xmlhttp.status, xmlhttp.responseText);
+          setTimeout(ping, stimeout);
+        }
+      }
+      xmlhttp.open("GET","/ping/",true);
+      xmlhttp.send();
+    }
+
 </script>
 
 </body>

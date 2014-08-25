@@ -48,6 +48,7 @@ app.configure('production', function(){
  * ------
  */
  
+app.get('/ping', checkAuth, files.pong);
 app.get('/files', checkAuth, files.findAll);
 app.get('/files/:id', checkAuth, files.findById);
 app.post('/files', checkAuth, files.addFile);
