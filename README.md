@@ -22,20 +22,25 @@ luis@boxita:~$ echo -n mypass | openssl sha1
 (stdin)= e727d1464ae12436e899a726da5b2f11d8381b26
 ```
 
-and then insert it into mongo "users" collection
+and then insert it into mongo "users" collection, remember to set the "admin" flag to true and the "team". If you are admin you will see all documents in the files collection regarless of ownership, if you are not admin, you will see documents which you own plus documents that share the "team" value with you, so its important to set the team property to a single string (currently only single teams its supported... to not complicate the management of teams)
+
 ```
 luis@boxita:~$ mongo
 MongoDB shell version: 2.4.10
 connecting to: test
 > use ramldb;
 switched to db ramldb
-> db.users.insert({"mail":"hadesbox@gmail.com", "pass":"e727d1464ae12436e899a726da5b2f11d8381b26"});
+> db.users.insert({"mail":"hadesbox", "pass":"e727d1464ae12436e899a726da5b2f11d8381b26"}, "admin": true, "team": "blue");
 > db.users.find()
-{ "_id" : ObjectId("538ee9ff9707c7c00bc7d50c"), "mail" : "hadesbox@gmail.com", "pass" : "e727d1464ae12436e899a726da5b2f11d8381b26" }
+{ "_id" : ObjectId("1111111111111111"), "mail" : "hadesbox@gmail.com", "pass" : "e727d1464ae12436e899a726da5b2f11d8381b26", "admin": true, "team": "blue" }
+
+> db.users.insert({"mail":"plancton", "pass":"e727d1464ae12436e899a726da5b2f11d8381b26"}, "admin": false, "team": "blue");
+> db.users.find()
+{ "_id" : ObjectId("2222222222222222"), "mail" : "hadesbox@gmail.com", "pass" : "e727d1464ae12436e899a726da5b2f11d8381b26", "admin": false, "team": "blue" }
+
 > 
 ```
-
-Then you will be able to login and create RAML documents as normal
+plancton user, will only see its documents, and documents shared by the hadesbox user which is "blue" team. Then you will be able to login and create RAML documents as normal
 
 ![API Designer login page](http://i.imgur.com/HQwtye2.png)
 

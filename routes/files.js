@@ -44,8 +44,14 @@ exports.findById = function (req, res) {
 exports.findAll = function (req, res) {
   var filelist = new Object();
   db.collection('files', function (err, collection) {
-    //if the user is admin, we fetch ALL documents, if he is we only fetch owned
-    query = (req.session.admin?{}:{'owner': req.session.user_id});
+    if(req.session.admin){
+      //if its admin we search for all documents in collection
+      query = {};
+    }
+    else{
+      //if its not, we search for owned and team share files
+      query =  { $or: [ { "owner" : req.session.user_id }, { "team": req.session.team } ] }
+    }
     collection.find(query, function (err, resultCursor) {
       resultCursor.each(function (err, item) {
         if (item != null) {
@@ -68,6 +74,7 @@ exports.addFile = function (req, res) {
   var file = req.body;
   console.log('Adding file : ' + JSON.stringify(file));
   file.owner = req.session.user_id;
+  file.team = req.session.team;
   db.collection('files', function (err, collection) {
     collection.insert(file, {safe: true}, function (err, result) {
       if (err) {
@@ -83,21 +90,22 @@ exports.addFile = function (req, res) {
 
 exports.updateFile = function (req, res) {
   var id = req.params.id;
-  var file = req.body;
-  console.log('Updating file: ' + id);
-  console.log(JSON.stringify(file));
-
-  file.owner = req.session.user_id;
   db.collection('files', function (err, collection) {
-    collection.update({'_id': new BSON.ObjectID(id)}, file, {safe: true}, function (err, result) {
-      if (err) {
-        console.log('Error updating file : ' + err);
-        res.send({'error': 'An error has occurred'});
-      } else {
-        console.log('' + result + ' document(s) updated');
-        res.header("Access-Control-Allow-Origin", "*");
-        res.send('{"status":"success","id":"' + id + '","message":"The file was successfully updated."}');
+    collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
+      item.content = req.body.content;
+      if(item.team == null || item.team == ""){
+        item.team = req.session.team; 
       }
+      collection.update({'_id': new BSON.ObjectID(id)}, item, {safe: true}, function (err, result) {
+        if (err) {
+          console.log('Error updating file : ' + err);
+          res.send({'error': 'An error has occurred'});
+        } else {
+          console.log('' + result + ' document(s) updated');
+          res.header("Access-Control-Allow-Origin", "*");
+          res.send('{"status":"success","id":"' + id + '","message":"The file was successfully updated."}');
+        }
+      });
     });
   });
 }
