@@ -2053,6 +2053,16 @@
         console.log("directory", directory);
         console.log("fileName", fileName);
         console.log("newFileName", newFilename);
+
+        if(newFilename == fileName.path){
+          console.log("error de mismo path", fileName.path)
+          $rootScope.$broadcast('event:notification', {
+              message: 'ERROR, duplicated file name: ' + newFilename,
+              expires: true
+          });
+          return;
+        }
+
         var file = new RamlFile(newFilename);        
         file.contents = fileName.contents;        
         service.saveFile(file).then(function () {
