@@ -2048,6 +2048,20 @@
         });
         ;
       };
+
+      service.cloneFile = function createFile(directory, fileName, newFilename) {
+        console.log("directory", directory);
+        console.log("fileName", fileName);
+        console.log("newFileName", newFilename);
+        var file = new RamlFile(newFilename);        
+        file.contents = fileName.contents;        
+        service.saveFile(file).then(function () {
+          $rootScope.$broadcast('event:raml-editor-file-created', file);
+          directory.files.push(file);
+          return file;
+        });
+      };
+
       service.createFile = function createFile(name) {
         var path = defaultPath + name;
         var file = new RamlFile(path);
@@ -3368,6 +3382,14 @@
             execute: function () {
               ramlEditorFilenamePrompt.open(directory, file.path).then(function (filename) {
                 ramlRepository.renameFile(file, filename);
+              });
+            }
+          },
+          {
+            label: 'Clone',
+            execute: function () {
+              ramlEditorFilenamePrompt.open(directory, file.path).then(function (newFilename) {
+                ramlRepository.cloneFile(directory, file, newFilename);
               });
             }
           }
