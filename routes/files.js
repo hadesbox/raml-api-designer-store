@@ -24,7 +24,7 @@ exports.pong = function (req, res) {
 };
 
 exports.findById = function (req, res) {
-  console.log('Retrieving file: ' + req.params.id);
+  //console.log('Retrieving file: ' + req.params.id);
    if(req.params.id == 'undefined' || req.params.id  === null){
   	res.httpStatus = 404;
     res.send(JSON.stringify({status: "error", response: "invalid id"}));
@@ -56,7 +56,7 @@ exports.findAll = function (req, res) {
 
       resultCursor.each(function (err, item) {
         if (item != null) {
-          console.log('Item : ' + item._id + ' : ' + item.path);
+          //console.log('Item : ' + item._id + ' : ' + item.path);
           filelist[item._id] = item;
           delete filelist[item._id]._id;
           //console.log(JSON.stringify(filelist));
@@ -73,7 +73,7 @@ exports.findAll = function (req, res) {
 
 exports.addFile = function (req, res) {
   var file = req.body;
-  console.log('Adding file : ' + JSON.stringify(file));
+  //console.log('Adding file : ' + JSON.stringify(file));
   file.owner = req.session.user_id;
   file.team = req.session.team;
   db.collection('files', function (err, collection) {
@@ -81,7 +81,7 @@ exports.addFile = function (req, res) {
       if (err) {
         res.send({'error': 'An error has occurred'});
       } else {
-        console.log('Success: ' + JSON.stringify(result[0]));
+        //console.log('Success: ' + JSON.stringify(result[0]));
         res.header("Access-Control-Allow-Origin", "*");
         res.send(result[0]);
       }
@@ -93,39 +93,59 @@ exports.updateFile = function (req, res) {
   var id = req.params.id;
   db.collection('files', function (err, collection) {
     collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
-      item.content = req.body.content;
-      if(item.team == null || item.team == ""){
-        item.team = req.session.team; 
+      if(err){
+        res.httpStatus = 404;
+        res.send(JSON.stringify({status: "error", response: "Item not found."}));
       }
-      collection.update({'_id': new BSON.ObjectID(id)}, item, {safe: true}, function (err, result) {
-        if (err) {
-          console.log('Error updating file : ' + err);
-          res.send({'error': 'An error has occurred'});
-        } else {
-          console.log('' + result + ' document(s) updated');
-          res.header("Access-Control-Allow-Origin", "*");
-          res.send('{"status":"success","id":"' + id + '","message":"The file was successfully updated."}');
+      else if(req.session.user_id != item.owner && req.session.team != item.team && !req.session.admin){
+        res.httpStatus = 403;
+        res.send(JSON.stringify({status: "error", response: "you dont have permissions to access that resouce."}));
+      }
+      else {
+        item.content = req.body.content;
+        if(item.team == null || item.team == ""){
+          item.team = req.session.team; 
         }
-      });
+        collection.update({'_id': new BSON.ObjectID(id)}, item, {safe: true}, function (err, result) {
+          if (err) {
+            //console.log('Error updating file : ' + err);
+            res.send({'error': 'An error has occurred'});
+          } else {
+            //console.log('' + result + ' document(s) updated');
+            res.header("Access-Control-Allow-Origin", "*");
+            res.send('{"status":"success","id":"' + id + '","message":"The file was successfully updated."}');
+          }
+        });
+      }
     });
   });
 }
 
 exports.deleteFile = function (req, res) {
   var id = req.params.id;
-  console.log('Deleting file: ' + id);
+  //console.log('Deleting file: ' + id);
   db.collection('files', function (err, collection) {
-    collection.remove({'_id': new BSON.ObjectID(id)}, {safe: true}, function (err, result) {
-      if (err) {
-        res.send({'error': 'An error has occurred - ' + err});
-      } else {
-        console.log('' + result + ' document(s) deleted');
-        res.send(req.body);
+    collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
+      if(err){
+        res.httpStatus = 404;
+        res.send(JSON.stringify({status: "error", response: "Item not found."}));
+      }
+      else if(req.session.user_id != item.owner && req.session.team != item.team && !req.session.admin){
+        res.httpStatus = 403;
+        res.send(JSON.stringify({status: "error", response: "you dont have permissions to access that resouce."}));
+      }
+      else {
+        collection.remove({'_id': new BSON.ObjectID(id)}, {safe: true}, function (err, result) {
+          if (err) {
+            res.send({'error': 'An error has occurred - ' + err});
+          } else {
+            //console.log('' + result + ' document(s) deleted');
+            res.send(req.body);
+          }
+        });
       }
     });
   });
-
-
 }
 
 /*--------------------------------------------------------------------------------------------------------------------*/
