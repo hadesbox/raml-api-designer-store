@@ -52,7 +52,8 @@ exports.findAll = function (req, res) {
       //if its not, we search for owned and team share files
       query =  { $or: [ { "owner" : req.session.user_id }, { "team": req.session.team } ] }
     }
-    collection.find(query, function (err, resultCursor) {
+    collection.find(query, {path: 1, name:1, team:1, owner:1}, function (err, resultCursor) {
+
       resultCursor.each(function (err, item) {
         if (item != null) {
           console.log('Item : ' + item._id + ' : ' + item.path);
