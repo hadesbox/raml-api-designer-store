@@ -19,7 +19,16 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(express.bodyParser());
   app.use(express.cookieParser());
-  app.use(express.session({secret: '1234567890QWERTY'}));  
+  //app.use(express.session({secret: '1234567890QWERTY'}));
+  app.use(express.session({secret: '1234567890QWERTY'}, {
+    cookie: {
+      path: '/',
+      httpOnly: true,
+      secure: false,
+      maxAge: 8 * 60 * 60 * 1000
+    },
+    rolling: true
+  }));
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
