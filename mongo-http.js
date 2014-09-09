@@ -11,7 +11,7 @@ var Server = mongo.Server,
 
 var server = new Server('localhost', 27017, { auto_reconnect: true });
 
-db = new Db('ramldb', server);
+db = new Db('ramldb', server, {safe:true});
 
 db.open(function(err, db) {
     if (!err) {

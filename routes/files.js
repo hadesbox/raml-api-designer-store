@@ -5,7 +5,7 @@ var Server = mongo.Server,
   BSON = mongo.BSONPure;
 
 var server = new Server('localhost', 27017, {auto_reconnect: true, journal: true, safe:false});
-db = new Db('ramldb', server);
+db = new Db('ramldb', server, {safe:true});
 
 db.open(function (err, db) {
   if (!err) {
