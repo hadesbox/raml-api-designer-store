@@ -20,6 +20,7 @@ db.open(function (err, db) {
 });
 
 exports.pong = function (req, res) {
+  console.log(Date(), req.session.user_id, "pong!");
   res.send("pong!");
 };
 
