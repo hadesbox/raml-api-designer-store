@@ -77,4 +77,6 @@ And then you can use the __!include localhost:10000/myapi/song.schema.json__ on 
 
 #### Installing on a server
 
-You will need to have a mongo running on the server, and it can be easly daemonized with __forever start server.js__.
+To start the Api Designer you can __forever start server.js__.
+
+The mongo REST publisher (for the API Console and the proxy) is not started automatically so if you want it you should __forever start mongo-http.js__.
