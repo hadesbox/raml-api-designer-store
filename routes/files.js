@@ -24,6 +24,38 @@ exports.pong = function (req, res) {
   res.send("pong!");
 };
 
+exports.findByProject = function (req, res) {
+
+  console.log('Retrieving file: ' + req.params.id);
+
+  if(req.params.id == 'undefined' || req.params.id  === null){
+    res.httpStatus = 404;
+    res.send(JSON.stringify({status: "error", response: "invalid or empty project id"}));
+  }
+  else{
+    var projectid = req.params.id;
+    var filelist = new Object();
+    db.collection('files', function (err, collection) {
+      query =  { project: projectid }
+      collection.find(query, {path: 1, name:1, team:1, owner:1}, function (err, resultCursor) {
+        resultCursor.each(function (err, item) {
+          if (item != null) {
+            //console.log('Item : ' + item._id + ' : ' + item.path);
+            filelist[item._id] = item;
+            delete filelist[item._id]._id;
+            //console.log(JSON.stringify(filelist));
+          }
+          else {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.send(JSON.stringify({status: "ok", response: filelist}));
+          }
+        });
+      });
+    });
+  }
+  
+};
+
 exports.findById = function (req, res) {
   //console.log('Retrieving file: ' + req.params.id);
    if(req.params.id == 'undefined' || req.params.id  === null){

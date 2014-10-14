@@ -44,12 +44,6 @@ angular.module('ramlEditorApp')
           if(status >= 401){
             window.location = "/login.html";
           }
-/*
-            console.log("error1", data);
-            console.log("error2", status);
-            console.log("error3",  headers);
-            console.log("error4", config);
-*/
       }
 
       function validatePath(path) {
@@ -75,15 +69,14 @@ angular.module('ramlEditorApp')
       }
 
       /**
-       * List files found in a given path.
+       * List files found in a given project.
        */
-      service.directory = function () {
+      service.directory = function (path) {
         var deferred = $q.defer();
-
         $http({
           method: 'GET',
           data: '',
-          url: url,
+          url: "/projects/"+path,
           withCredentials: false
         }).success(function (data) {
           var ramlFiles = [];
@@ -262,9 +255,7 @@ angular.module('ramlEditorApp')
       // The expires flags means whether
       // it should be hidden after a period of time or the
       // user should dismiss it manually.
-      eventService.broadcast('event:notification',
-          {message: 'File saved.', expires: true});
-
+      //eventService.broadcast('event:notification',{message: 'File saved.', expires: true});
     });
 
     var stimeout = 60000;

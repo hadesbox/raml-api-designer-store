@@ -3572,6 +3572,9 @@
             pos += 1;
           }
         }
+
+
+/*
         ramlRepository.getDirectory().then(function (directory) {
           $scope.homeDirectory = directory;
           fileBrowser.rootFile = findRootFile(directory);
@@ -3594,7 +3597,9 @@
             })[0] || fileBrowser.rootFile || directory.files[0];
           fileBrowser.selectFile(fileToOpen);
         });
-        ;
+*/
+
+        
       }
       return {
         restrict: 'E',
@@ -3639,19 +3644,13 @@
     function ramlEditorSelectProjectInput($rootScope, ramlRepository) {
       return {
         restrict: 'E',
-        template: '<select id="project_select_input" role="project-select" ng-model="projects.selected" ng-change="selectProject()"><option value="volvo">Volvo</option></select>',
+        template: 'Projects <select id="project_select_input" role="project-select" ng-model="projects.selected" ng-change="selectProject()"><option value="apidatos">apidatos</option><option value="beeper">beeper</option><option value="op">op</option></select>',
         link: function (scope) {
           scope.selectProject = function selectProject() {
-            console.log("holaaass", scope.projects.selected)
-/*
-            var file = scope.fileBrowser.selectedFile;
-            ramlRepository.selectProject(file).then(function success() {
-              $rootScope.$broadcast('event:notification', {
-                message: 'File saved.',
-                expires: true
-              });
+            //console.log("fetching files for project", scope.projects.selected);
+            ramlRepository.getDirectory(scope.projects.selected).then(function (directory) {
+              $rootScope.homeDirectory = directory;
             });
-*/
           };
         }
       };
