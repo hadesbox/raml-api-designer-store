@@ -61,6 +61,7 @@ app.get('/ping', checkAuth, files.pong);
 app.get('/files', checkAuth, files.findAll);
 app.get('/files/:id', checkAuth, files.findById);
 app.get('/projects/:id', checkAuth, files.findByProject);
+app.get('/projects', checkAuth, files.findMyProjects);
 app.post('/files', checkAuth, files.addFile);
 app.put('/files/:id', checkAuth, files.updateFile);
 app.delete('/files/:id', checkAuth, files.deleteFile);

@@ -1991,6 +1991,8 @@
           throw error;
         };
       }
+
+
       service.getDirectory = function getDirectory(path) {
         //console.log("getDirectory for", path);
         path = path || defaultPath;
@@ -1998,6 +2000,11 @@
           return new RamlDirectory(folder.path, folder.meta, folder.children);
         });
       };
+
+      service.getProjects = function getDirectory() {
+        return fileSystem.getProjects();
+      };
+
       service.saveFile = function saveFile(file) {
         function modifyFile() {
           file.dirty = false;
@@ -3573,6 +3580,7 @@
           }
         }
 
+        ramlRepository.getProjects();
 
 /*
         ramlRepository.getDirectory().then(function (directory) {
@@ -3644,7 +3652,7 @@
     function ramlEditorSelectProjectInput($rootScope, ramlRepository) {
       return {
         restrict: 'E',
-        template: 'Projects <select id="project_select_input" role="project-select" ng-model="projects.selected" ng-change="selectProject()"><option value="apidatos">apidatos</option><option value="beeper">beeper</option><option value="op">op</option></select>',
+        template: 'Projects <select id="project_select_input" role="project-select" ng-model="projects.selected" ng-change="selectProject()"></select>',
         link: function (scope) {
           scope.selectProject = function selectProject() {
             //console.log("fetching files for project", scope.projects.selected);

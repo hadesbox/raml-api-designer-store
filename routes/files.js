@@ -26,7 +26,7 @@ exports.pong = function (req, res) {
 
 exports.findByProject = function (req, res) {
 
-  console.log('Retrieving file: ' + req.params.id);
+  console.log('Retrieving files for project: ' + req.params.id);
 
   if(req.params.id == 'undefined' || req.params.id  === null){
     res.httpStatus = 404;
@@ -53,7 +53,25 @@ exports.findByProject = function (req, res) {
       });
     });
   }
-  
+
+};
+
+exports.findMyProjects = function (req, res) {
+  console.log('Retrieving my projects:', req.session.user_id);
+  db.collection('users', function (err, collection) {
+    //console.log("collection", err, collection);
+    collection.findOne({'_id': new BSON.ObjectID(req.session.user_id)}, function (err, item) {
+      //console.log("found", item);
+      delete item._id;
+      delete item.team;
+      delete item.admin;
+      delete item.mail;
+      delete item.pass;
+      item.status="ok";
+      res.header("Access-Control-Allow-Origin", "*");
+      res.send(item);
+    });
+  });
 };
 
 exports.findById = function (req, res) {

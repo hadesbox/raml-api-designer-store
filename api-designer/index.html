@@ -41,6 +41,7 @@ angular.module('ramlEditorApp')
       var url = "/files/";
 
       function errorFunction(data, status, headers, config) {
+          //console.log("errorFunction", data, status, headers, config);
           if(status >= 401){
             window.location = "/login.html";
           }
@@ -67,6 +68,35 @@ angular.module('ramlEditorApp')
 
         return path.slice(path.lastIndexOf('/') + 1);
       }
+
+      /**
+       * List projects for my user.
+       */
+      service.getProjects = function () {
+        var deferred = $q.defer();
+        $http({
+          method: 'GET',
+          data: '',
+          url: "/projects",
+          withCredentials: false
+        }).success(function (data) {
+          if(data.status=="ok"){
+            var projectSelectInput = document.getElementById("project_select_input");
+            Object.keys(data.projects).forEach(function (id) {
+              var option = document.createElement("option");
+              //alert(data.projects[id])
+              option.text = data.projects[id];
+              option.value = data.projects[id];
+              projectSelectInput.add(option)              
+            });
+          }
+          else{
+            alert(data.message)
+          }
+        })
+        .error(errorFunction);
+        return deferred.promise;
+      };
 
       /**
        * List files found in a given project.
