@@ -162,7 +162,8 @@ angular.module('ramlEditorApp')
             name: newName,
             content: encodeURI(content),
             type: 'file',
-            lastUpdated: dateCourante
+            lastUpdated: dateCourante,
+            project: document.getElementById("project_select_input").value
           };
 
           $http({

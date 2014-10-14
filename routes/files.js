@@ -154,6 +154,7 @@ exports.updateFile = function (req, res) {
       }
       else {
         item.content = req.body.content;
+        item.lastUser = req.session.user_id;
         if(item.team == null || item.team == ""){
           item.team = req.session.team; 
         }
