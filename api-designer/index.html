@@ -41,15 +41,10 @@ angular.module('ramlEditorApp')
       var url = "/files/";
 
       function errorFunction(data, status, headers, config) {
+          //console.log("errorFunction", data, status, headers, config);
           if(status >= 401){
             window.location = "/login.html";
           }
-/*
-            console.log("error1", data);
-            console.log("error2", status);
-            console.log("error3",  headers);
-            console.log("error4", config);
-*/
       }
 
       function validatePath(path) {
@@ -75,15 +70,43 @@ angular.module('ramlEditorApp')
       }
 
       /**
-       * List files found in a given path.
+       * List projects for my user.
        */
-      service.directory = function () {
+      service.getProjects = function () {
         var deferred = $q.defer();
-
         $http({
           method: 'GET',
           data: '',
-          url: url,
+          url: "/projects",
+          withCredentials: false
+        }).success(function (data) {
+          if(data.status=="ok"){
+            var projectSelectInput = document.getElementById("project_select_input");
+            Object.keys(data.projects).forEach(function (id) {
+              var option = document.createElement("option");
+              //alert(data.projects[id])
+              option.text = data.projects[id];
+              option.value = data.projects[id];
+              projectSelectInput.add(option)              
+            });
+          }
+          else{
+            alert(data.message)
+          }
+        })
+        .error(errorFunction);
+        return deferred.promise;
+      };
+
+      /**
+       * List files found in a given project.
+       */
+      service.directory = function (path) {
+        var deferred = $q.defer();
+        $http({
+          method: 'GET',
+          data: '',
+          url: "/projects/"+path,
           withCredentials: false
         }).success(function (data) {
           var ramlFiles = [];
@@ -139,7 +162,8 @@ angular.module('ramlEditorApp')
             name: newName,
             content: encodeURI(content),
             type: 'file',
-            lastUpdated: dateCourante
+            lastUpdated: dateCourante,
+            project: document.getElementById("project_select_input").value
           };
 
           $http({
@@ -262,9 +286,7 @@ angular.module('ramlEditorApp')
       // The expires flags means whether
       // it should be hidden after a period of time or the
       // user should dismiss it manually.
-      eventService.broadcast('event:notification',
-          {message: 'File saved.', expires: true});
-
+      //eventService.broadcast('event:notification',{message: 'File saved.', expires: true});
     });
 
     var stimeout = 60000;

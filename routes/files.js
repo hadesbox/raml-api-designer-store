@@ -24,6 +24,56 @@ exports.pong = function (req, res) {
   res.send("pong!");
 };
 
+exports.findByProject = function (req, res) {
+
+  console.log('Retrieving files for project: ' + req.params.id);
+
+  if(req.params.id == 'undefined' || req.params.id  === null){
+    res.httpStatus = 404;
+    res.send(JSON.stringify({status: "error", response: "invalid or empty project id"}));
+  }
+  else{
+    var projectid = req.params.id;
+    var filelist = new Object();
+    db.collection('files', function (err, collection) {
+      query =  { project: projectid }
+      collection.find(query, {path: 1, name:1, team:1, owner:1}, function (err, resultCursor) {
+        resultCursor.each(function (err, item) {
+          if (item != null) {
+            //console.log('Item : ' + item._id + ' : ' + item.path);
+            filelist[item._id] = item;
+            delete filelist[item._id]._id;
+            //console.log(JSON.stringify(filelist));
+          }
+          else {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.send(JSON.stringify({status: "ok", response: filelist}));
+          }
+        });
+      });
+    });
+  }
+
+};
+
+exports.findMyProjects = function (req, res) {
+  console.log('Retrieving my projects:', req.session.user_id);
+  db.collection('users', function (err, collection) {
+    //console.log("collection", err, collection);
+    collection.findOne({'_id': new BSON.ObjectID(req.session.user_id)}, function (err, item) {
+      //console.log("found", item);
+      delete item._id;
+      delete item.team;
+      delete item.admin;
+      delete item.mail;
+      delete item.pass;
+      item.status="ok";
+      res.header("Access-Control-Allow-Origin", "*");
+      res.send(item);
+    });
+  });
+};
+
 exports.findById = function (req, res) {
   //console.log('Retrieving file: ' + req.params.id);
    if(req.params.id == 'undefined' || req.params.id  === null){
@@ -104,6 +154,7 @@ exports.updateFile = function (req, res) {
       }
       else {
         item.content = req.body.content;
+        item.lastUser = req.session.user_id;
         if(item.team == null || item.team == ""){
           item.team = req.session.team; 
         }
