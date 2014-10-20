@@ -64,7 +64,6 @@ http.createServer(function (req, res) {
 					}
 				}
 				proxyBody = "";
-				//console.log("options for request are", options);
 				reqhttp = http.request(options, function(resProxy) {
 				  //console.log('STATUS RESPONSE: ' + resProxy.statusCode);
 				  //console.log('HEADER RESPONSE: ' + JSON.stringify(resProxy.headers));
@@ -91,12 +90,12 @@ http.createServer(function (req, res) {
 			else if(url_parts.protocol == "https:"){
 				var options = {
 				  host: url_parts.hostname, 
-				  port: (url_parts.port != null ? url_parts.port : 80),
+				  port: 443,
 				  path: url_parts.pathname,
 				  method: req.method,
 				  rejectUnauthorized: false,
-			      requestCert: true,
-			      agent: false
+			      	  requestCert: true,
+			      	  agent: false
 				};			
 				//we include origin request headers!
 				options.headers = {};
