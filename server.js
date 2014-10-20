@@ -84,6 +84,7 @@ app.post('/login', function (req, res) {
               req.session.user_id = item._id
               req.session.admin = (item.admin===false || item.admin===true? item.admin : false);
               req.session.team = item.team;
+              req.session.projects = item.projects;
               res.redirect("/");
             }
             else{

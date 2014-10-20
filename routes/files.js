@@ -182,7 +182,7 @@ exports.deleteFile = function (req, res) {
         res.httpStatus = 404;
         res.send(JSON.stringify({status: "error", response: "Item not found."}));
       }
-      else if(req.session.user_id != item.owner && req.session.team != item.team && !req.session.admin){
+      else if( item.projects.indexOf(item.project) == -1){
         res.httpStatus = 403;
         res.send(JSON.stringify({status: "error", response: "you dont have permissions to access that resouce."}));
       }
