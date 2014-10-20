@@ -244,12 +244,15 @@ angular.module('ramlEditorApp')
           data: '',
           url: url + files[path],
           withCredentials: false
-        }).success(function () {
-          delete files[path];
-          deferred.resolve();
-        })
-            .error(deferred.reject.bind(deferred));
-
+        }).success(function (data) {
+          if(data.status=="ok"){
+            delete files[path];
+            deferred.resolve();            
+          }
+          else{
+            alert(data.message)
+          }
+        }).error(deferred.reject.bind(deferred));
         return deferred.promise;
       };
 
