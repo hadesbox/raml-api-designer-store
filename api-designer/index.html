@@ -82,6 +82,7 @@ angular.module('ramlEditorApp')
         }).success(function (data) {
           if(data.status=="ok"){
             var projectSelectInput = document.getElementById("project_select_input");
+            data.projects.sort();
             Object.keys(data.projects).forEach(function (id) {
               var option = document.createElement("option");
               //alert(data.projects[id])
