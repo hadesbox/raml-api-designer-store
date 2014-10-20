@@ -245,7 +245,7 @@ angular.module('ramlEditorApp')
           url: url + files[path],
           withCredentials: false
         }).success(function (data) {
-          if(data.status=="ok"){
+          if(data && data.status=="ok"){
             delete files[path];
             deferred.resolve();            
           }

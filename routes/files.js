@@ -182,7 +182,7 @@ exports.deleteFile = function (req, res) {
         res.httpStatus = 404;
         res.send(JSON.stringify({status: "error", response: "Item not found."}));
       }
-      else if( item.projects.indexOf(item.project) == -1){
+      else if(req.session.projects.indexOf(item.project) == -1){
         res.httpStatus = 403;
         res.send(JSON.stringify({status: "error", response: "you dont have permissions to access that resouce."}));
       }
@@ -192,7 +192,7 @@ exports.deleteFile = function (req, res) {
             res.send({'error': 'An error has occurred - ' + err});
           } else {
             //console.log('' + result + ' document(s) deleted');
-            res.send(req.body);
+            res.send(JSON.stringify({status: "ok", message: "file deleted"}));
           }
         });
       }
