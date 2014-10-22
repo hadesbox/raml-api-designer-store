@@ -1082,3 +1082,18 @@ div[role=raml-editor] .menubar .menu-item-mocking-service .field input[type=chec
   left: -webkit-calc(100% - 2em - 3px);
   left: calc(100% - 2em - 3px);
 }
+
+
+
+.json-file-browser {
+  color: #9966FF;
+}
+
+.md-file-browser {
+  color: #FF6633;
+}
+
+.raml-file-browser {
+  color: #33FFFF;
+}
+

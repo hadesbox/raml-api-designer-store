@@ -113,23 +113,36 @@ angular.module('ramlEditorApp')
           var ramlFiles = [];
           //console.log("data is +++",data,"+++");
           if(data.status=="ok"){
-            Object.keys(data.response).forEach(function (id) {
-
-              //console.log("@@ path:", data.response[id].path,", content: ",decodeURI(data.response[id].content));
-
+            for (id in data.response) {
               files[data.response[id].path] = id;
               ramlFiles.push({path: data.response[id].path, content: decodeURI(data.response[id].content)});
-              //console.log("path is ",data.response[id].path);
-            });
+            };
           }
           else{
             alert(data.message)
           }
           deferred.resolve({path: '/', meta: {}, children: ramlFiles});
+          setTimeout(putColors, 100)
         })
         .error(errorFunction);
         return deferred.promise;
       };
+
+      function putColors(){
+        $(".file-name").each(function() {
+          //console.log($(this).html().length, $(this).html().lastIndexOf(".raml"));
+          if($(this).html().lastIndexOf(".raml")  != -1 ){
+            $(this).addClass("raml-file-browser");
+          }
+          else if($(this).html().lastIndexOf(".md")  != -1 ){
+            $(this).addClass("md-file-browser");
+          }
+          else if($(this).html().lastIndexOf(".json")  != -1 ){
+            $(this).addClass("json-file-browser");
+          }
+          //console.log(this);
+        });
+      }
 
       service.save = function (path, content) {
 
