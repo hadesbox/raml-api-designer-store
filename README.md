@@ -1,6 +1,6 @@
 # RAML API Designer with spices
 
-This is a modified version of the raml API Designer, so it can be hosted with a user authentication and filters with raml files owned by each user.
+This is a modified version of the raml API Designer Store (https://github.com/brianmc/raml-store) which is a modified version of the official API Designer by Mulesoft, so it can be hosted with a user authentication and filters with raml files owned by each user.
 
 
 ### Kicking it!!!
