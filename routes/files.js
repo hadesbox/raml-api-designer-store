@@ -12,8 +12,8 @@ db.open(function (err, db) {
     console.log("Connected to 'ramldb' database");
     db.collection('files', {strict: true}, function (err, collection) {
       if (err) {
-        console.log("The 'files' collection doesn't exist. Use POST to add RAML files...");
         populateDB();
+        console.log("User 'user' created with pass 'admin'...");
       }
     });
   }
@@ -74,23 +74,34 @@ exports.findMyProjects = function (req, res) {
   });
 };
 
-exports.findById = function (req, res) {
-  //console.log('Retrieving file: ' + req.params.id);
-   if(req.params.id == 'undefined' || req.params.id  === null){
-  	res.httpStatus = 404;
-    res.send(JSON.stringify({status: "error", response: "invalid id"}));
-  }
-  else{
- 	  var id = req.params.id;
- 	  db.collection('files', function (err, collection) {
- 	    collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
- 	      delete item._id;
- 	      res.header("Access-Control-Allow-Origin", "*");
- 	      res.send(item);
- 	    });
- 	  });
-  }
+exports.findById = function(req, res) {
+    //console.log('Retrieving file: ' + req.params.id);
+    if (!req.params || req.params.id == 'undefined' || req.params.id === null) {
+        res.httpStatus = 404;
+        res.send(JSON.stringify({
+            status: "error",
+            response: "invalid id"
+        }));
+    } else {
+        var id = req.params.id;
+        db.collection('files', function(err, collection) {
+            collection.findOne({ '_id': new BSON.ObjectID(id) }, function(err, item) {
+                if (!err && item) {
+                    delete item._id;
+                    res.header("Access-Control-Allow-Origin", "*");
+                    res.send(item);
+                } else {
+                    res.httpStatus = 404;
+                    res.send(JSON.stringify({
+                        status: "error",
+                        response: ""+err
+                    }));
+                }
+            });
+        });
+    }
 };
+
 
 exports.findAll = function (req, res) {
   var filelist = new Object();
@@ -204,17 +215,15 @@ exports.deleteFile = function (req, res) {
 // Populate database with sample data -- Only used once: the first time the application is started.
 // You'd typically not find this code in a real-life app, since the database would already exist.
 var populateDB = function () {
-
-  var files = [
-    {
-      path: "/demo.raml",
-      name: "demo.raml",
-      content: "#%25RAML%200.8%0Atitle:"
-    }
-  ];
-
+  var files = [ { path: "/demo.raml", name: "demo.raml", content: "#%25RAML%200.8%0Atitle:" , project: "demo"} ];
   db.collection('files', function (err, collection) {
     collection.insert(files, {safe: true}, function (err, result) {
+    });
+  });
+
+  var users= [{ "mail" : "user", "admin" : false, "pass" : "d033e22ae348aeb5660fc2140aec35850c4da997", "projects" : [ "demo", "api1", "api2" ], "team" : "apiteam" }];
+  db.collection('users', function (err, collection) {
+    collection.insert(users, {safe: true}, function (err, result) {
     });
   });
 
