@@ -9,12 +9,13 @@ remember you must have a runing mongodb in the same machine, so the whole projec
 
 to install simply do a __npm install__ after you have cloned the repo.
 
-to start the API Designer you must __node server.js__, this will launch 2 services.
+to start the API Designer you must __node server.js__,
+to start the REST RAML service (to serve file thru HTTP) you must __node http-mongo.js__, (which also works as proxy to your final API).
 
 
 #### API Designer (http://localhost:3000)
 
-In port 3000 you will have the API Designer, with user login. This version of the API Designer uses Mongo, to persist all RAML Documents and other data rather than the browser's local storage. This means that you need to insert a new user into the "users collection" to be able to login.
+In port 3000 you will have the API Designer, with user login. This version of the API Designer uses Mongo to persist all RAML Documents and other data rather than the browser's local storage. This means that you need to insert a new user into the "users collection" to be able to login.
 
 To do this you must first manually generate your unsalted password hash with SHA1:
 ```
@@ -30,23 +31,24 @@ MongoDB shell version: 2.4.10
 connecting to: test
 > use ramldb;
 switched to db ramldb
-> db.users.insert({"mail":"hadesbox", "pass":"e727d1464ae12436e899a726da5b2f11d8381b26"}, "admin": true, "team": "blue");
+> db.users.insert({"mail":"hadesbox", "pass":"e727d1464ae12436e899a726da5b2f11d8381b26"}, "admin": true, "team": "blue", "projects": ["project1", project2]);
 > db.users.find()
-{ "_id" : ObjectId("1111111111111111"), "mail" : "hadesbox@gmail.com", "pass" : "e727d1464ae12436e899a726da5b2f11d8381b26", "admin": true, "team": "blue" }
+{ "_id" : ObjectId("1111111111111111"), "mail" : "hadesbox@gmail.com", "pass" : "e727d1464ae12436e899a726da5b2f11d8381b26", "admin": true, "team": "blue", "projects": ["project1", project2] }
 
-> db.users.insert({"mail":"plancton", "pass":"e727d1464ae12436e899a726da5b2f11d8381b26"}, "admin": false, "team": "blue");
+> db.users.insert({"mail":"plancton", "pass":"e727d1464ae12436e899a726da5b2f11d8381b26"}, "admin": false, "team": "blue", "projects": ["project1", project2]);
 > db.users.find()
-{ "_id" : ObjectId("2222222222222222"), "mail" : "hadesbox@gmail.com", "pass" : "e727d1464ae12436e899a726da5b2f11d8381b26", "admin": false, "team": "blue" }
+{ "_id" : ObjectId("2222222222222222"), "mail" : "hadesbox@gmail.com", "pass" : "e727d1464ae12436e899a726da5b2f11d8381b26", "admin": false, "team": "blue", "projects": ["project1", project2] }
 
 > 
 ```
-plancton user, will only see its documents, and documents shared by the hadesbox user which is "blue" team. Then you will be able to login and create RAML documents as normal
+
+On the current version you will  have a combobox on the top of your API Designer, so you can select and switch between projects. The projects are just natural way to group several files that are related to a single API, if you create a file (RAML, JSON, XML, YAML) inside a a particular project of the designer, then it will be editable to users that have that project on the "projects" array in the mongo users collection.
 
 ![API Designer login page](http://i.imgur.com/HQwtye2.png)
 
-All RAML documents can only be edited by its owner, which is the user that created the RAML file.
+I removed the restriction of the codemirror so you can pretty much name your RAML whatever you feel (doesn't need to have the .raml extension anymore), the codemirror will still look for the RAML header in the __content__ of each document and if its a RAML it will enable the the side bar helpers.
 
-Also I removed the restriction of the codemirror so you can pretty much name your RAML whatever you feel (doesn't need to have the .raml extension anymore), the codemirror will still look for the RAML header in the __content__ of each document and if its a RAML it will enable the the side bar helpers.
+You should include (if you want) the JSON/XML examples, YAML files for documentation etc on this Designer so all files rest in your mongodb, and can be served on the same REST interface (see bellow).
 
 
 #### RestAPI Publisher with CORS (http://localhost:10000/YOURAPI)
@@ -60,7 +62,6 @@ Lets say your raml file in the API Designer its called __myapi__,
 this means you will have your Raml file publicly available at http://localhost:10000/myapi
 
 ![RAML Rest service with CORS](http://i.imgur.com/pY15BWO.png)
-
 
 This is very convenient also to extract JSON/XML examples or schemas into separate files, lets say you want extract this schema
 
@@ -80,3 +81,8 @@ And then you can use the __!include localhost:10000/myapi/song.schema.json__ on 
 To start the Api Designer you can __forever start server.js__.
 
 The mongo REST publisher (for the API Console and the proxy) is not started automatically so if you want it you should __forever start mongo-http.js__.
+
+
+#### HTTPS
+
+If you want to (you should) deploy this app over HTTPS use Apache as proxyReverse with your certs.
