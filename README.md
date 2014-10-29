@@ -46,6 +46,8 @@ On the current version you will  have a combobox on the top of your API Designer
 
 ![API Designer login page](http://i.imgur.com/HQwtye2.png)
 
+By default the user "user" with pass "admin" is created. It has 3 projects, you should edit/change this password and add any projects you need.
+
 I removed the restriction of the codemirror so you can pretty much name your RAML whatever you feel (doesn't need to have the .raml extension anymore), the codemirror will still look for the RAML header in the __content__ of each document and if its a RAML it will enable the the side bar helpers.
 
 You should include (if you want) the JSON/XML examples, YAML files for documentation etc on this Designer so all files rest in your mongodb, and can be served on the same REST interface (see bellow).
