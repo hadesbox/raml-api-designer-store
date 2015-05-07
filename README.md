@@ -94,12 +94,12 @@ If you want to (you should) deploy this app over HTTPS use Apache as proxyRevers
 
 The way to administrate the users in the mongodb "users" collection is thru the admin tool provided in the admintool/ramladmin. This tool is a python CLI tool, so first we need to install its dependencies.
 
-'''
+```
 $ sudo pip install -r admintool/requirements.txt
-'''
+```
 
 then we will be able to use the tool which has the 8 most frequent operations you will need to do with users.
-'''
+```
 
 [luix@boxita admintool]$ ./ramladmin 
 usage: ramladmin [-h] {copy,list,clear,add,rm,show,changepass,setadmin} ...
@@ -113,12 +113,12 @@ positional arguments:
     add                 adds a project to one or serveral users.
     rm                  removes a project from one or several users.
     show                shows user details.
-    changepass          change the password for a existing user.
-    setadmin            change the password for a existing user.
+    changepass          change the password for an existing user.
+    setadmin            change the admin level permissions for an existing user.
 
 optional arguments:
   -h, --help            show this help message and exit
 [luix@boxita admintool]$
-'''
+```
 
 this tool will take care of connecting to the local mongo and make all proper changes to the documents in the users collection, if you want it to be a global command just add it to your $PATH.
