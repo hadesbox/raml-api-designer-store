@@ -1,0 +1,226 @@
+#!/usr/bin/python
+
+import sys
+import argparse 
+import pymongo
+import hashlib
+import random
+import string
+
+from pymongo import MongoClient
+
+############# CLASSES
+
+class bcolors:
+    PURPLE = '\033[95m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+############# UTILITY FUNCTIONS
+
+def get_users_col():
+	client = MongoClient()
+	db = client.ramldb
+	users = db.users
+	return users
+
+def random_generator(size=6, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
+	return ''.join(random.choice(chars) for x in range(size))
+
+def print_user_info(user):
+	print("IsAdmin:", bcolors.BLUE, str(user.get("admin", "False")), bcolors.ENDC)
+	print("username:", bcolors.GREEN, user["mail"], bcolors.ENDC)
+	print("team:", bcolors.PURPLE, user["team"], bcolors.ENDC)
+	print("projects:", bcolors.BLUE, user["projects"], bcolors.ENDC)
+
+############# PARSER MAIN FUNCTIONS
+
+def clear_user_projects(args):
+	users = get_users_col()
+	target_user = users.find_one({"mail": args.username})
+	if target_user == None:
+		print(bcolors.FAIL, 'Error user ', args.username,' not found in the database.', bcolors.ENDC)
+		sys.exit(-1)
+	user_id = target_user["_id"]
+	target_user["projects"] = []
+	users.update_one({'_id': user_id}, {"$set": {"projects": []}})
+	print_user_info(target_user)
+	
+
+def add_user_projects(args):
+	users = get_users_col()
+	for user in args.username:
+		print("=====================")
+		target_user = users.find_one({"mail": user})
+		if target_user == None:
+			print(bcolors.FAIL, 'User', user, 'not found in the database.', bcolors.ENDC)
+			continue
+		if args.projectname in target_user["projects"]:
+			print(bcolors.FAIL, 'Project', args.projectname, 'already exist for user', user, bcolors.ENDC)
+			continue
+		user_id = target_user["_id"]
+		users.update_one({'_id': user_id}, {'$push': {'projects' : args.projectname } })
+		target_user["projects"].append(args.projectname)
+		print_user_info(target_user)
+
+
+def rm_user_projects(args):
+	users = get_users_col()
+	for user in args.username:
+		print("=====================")		
+		target_user = users.find_one({"mail": user})
+		if target_user == None:
+			print(bcolors.FAIL, 'User', user, 'not found in the database.', bcolors.ENDC)
+			continue
+		user_id = target_user["_id"]
+		users.update_one({'_id': user_id}, {'$pull': {'projects' : args.projectname } })
+		try:
+			target_user["projects"].remove(args.projectname)
+		except ValueError:
+			print(bcolors.FAIL, 'User', user, 'don\'t the have project', args.projectname, bcolors.ENDC)
+		print_user_info(target_user)
+
+
+def show_user(args):
+	users = get_users_col()
+	target_user = users.find_one({"mail": args.username})
+	if target_user == None:
+		print(bcolors.FAIL, 'Error user ', args.username,' not found in the database.', bcolors.ENDC)
+		sys.exit(-1)	
+	print_user_info(target_user)
+
+
+def list_users(args):
+	users = get_users_col()
+	if args.filter == None:
+		results = users.find({})
+	else:
+		results = users.find({"mail": {"$regex" : ".*"+args.filter+".*"}})
+	print(bcolors.BLUE, "IsAdmin?".ljust(8) ,bcolors.GREEN, "Username".ljust(50) , bcolors.PURPLE, "Team", bcolors.ENDC)
+	print("=========================================================================")
+	for doc in results:
+		print(bcolors.BLUE, str(doc.get("admin", "False")).ljust(8) ,bcolors.GREEN, doc["mail"].ljust(50) , bcolors.PURPLE, doc["team"])
+	print("\n",bcolors.BLUE + "Found " + bcolors.WARNING + str(users.count({})) +  bcolors.BLUE + " total users in the database" + bcolors.ENDC)		
+
+
+def copy_user(args):
+	users = get_users_col()
+	source_user = users.find_one({"mail": args.fromuser})
+	target_user = users.find_one({"mail": args.newuser})
+	if source_user == None:
+		print(bcolors.FAIL, 'Error user ' + args.fromuser + ' was not found in the database.', bcolors.ENDC)
+		sys.exit(-1)
+	if target_user != None:
+		print(bcolors.FAIL, 'Error new user ' + args.newuser + ' already exist in the database.', bcolors.ENDC)
+		sys.exit(-1)		
+	if args.fromuser == args.newuser:
+		print(bcolors.FAIL, 'Error source user and targer user can\'t have the same value.', bcolors.ENDC)
+		sys.exit(-1)
+	print("Found user", bcolors.GREEN, args.fromuser, bcolors.ENDC)
+	print("cloning into", bcolors.GREEN, args.newuser, bcolors.ENDC)
+	del source_user["_id"]
+	h = hashlib.sha1()
+	if args.password != None:
+		h.update(args.password.encode('utf-8'))
+		print("Using provided password...")
+	else:
+		generated_pass = random_generator()
+		print("generating password:", bcolors.BLUE, generated_pass, bcolors.ENDC)
+		h.update(generated_pass.encode('utf-8'))
+	source_user["pass"] = h.hexdigest()
+	source_user["mail"] = args.newuser
+	users.insert_one(source_user)
+	print_user_info(source_user)
+
+
+def change_pass(args):
+	users = get_users_col()
+	source_user = users.find_one({"mail": args.username})
+	if source_user == None:
+		print(bcolors.FAIL, 'Error user ' + args.fromuser + ' was not found in the database.', bcolors.ENDC)
+		sys.exit(-1)
+	h = hashlib.sha1()
+	if args.password != None:
+		h.update(args.password.encode('utf-8'))
+		print("Using provided password...")
+	else:
+		generated_pass = random_generator()
+		print("generating password:", bcolors.BLUE, generated_pass, bcolors.ENDC)
+		h.update(generated_pass.encode('utf-8'))
+	user_id = source_user["_id"]
+	users.update_one({'_id': user_id}, {"$set": {"pass": h.hexdigest()}})
+	print_user_info(source_user)
+
+
+def set_admin(args):
+	users = get_users_col()
+	source_user = users.find_one({"mail": args.username})
+	if source_user == None:
+		print(bcolors.FAIL, 'Error user ' + args.fromuser + ' was not found in the database.', bcolors.ENDC)
+		sys.exit(-1)
+	user_id = source_user["_id"]
+	source_user["admin"] = args.is_admin
+	users.update_one({'_id': user_id}, {"$set": {"admin": (True if args.is_admin == "true" else False ) }})
+	print(args)
+	print_user_info(source_user)
+
+
+############## PARSER DEFINITION
+
+parser = argparse.ArgumentParser(description='User management for RAML API Designer DB (mongo).')
+
+parser = argparse.ArgumentParser()
+subparsers = parser.add_subparsers(help='sub-command help')
+
+# create the parser for the "copy" command
+parser_copy = subparsers.add_parser('copy', help='copy a user')
+parser_copy.add_argument('fromuser', type=str, help='the user to use as a template, projects and team will be copied')
+parser_copy.add_argument('newuser', type=str, help='the new username')
+parser_copy.add_argument('password', type=str, help='the password for the new user, if not set, a password will be randomly generated', nargs='?')
+parser_copy.set_defaults(func=copy_user)
+
+# create the parser for the "list" command
+parser_list = subparsers.add_parser('list', help='list users currently  in the Api Designer DB.')
+parser_list.add_argument('filter', type=str, help='keyword to filter (without blankspaces)', nargs='?')
+parser_list.set_defaults(func=list_users)
+
+parser_clearp = subparsers.add_parser('clear', help='deletes all projects from a user.')
+parser_clearp.add_argument('username', type=str, help='usename to delete all projects')
+parser_clearp.set_defaults(func=clear_user_projects)
+
+parser_addp = subparsers.add_parser('add', help='adds a project to one or serveral users.')
+parser_addp.add_argument('projectname', type=str, help='the name of the project to add (withouth blankspaces)')
+parser_addp.add_argument('username', type=str, help='usename to add the project', nargs='+')
+parser_addp.set_defaults(func=add_user_projects)
+
+parser_rmp = subparsers.add_parser('rm', help='removes a project from one or several users.')
+parser_rmp.add_argument('projectname', type=str, help='the name of the project to remove (withouth blankspaces)')
+parser_rmp.add_argument('username', type=str, help='usename to add the project', nargs='+')
+parser_rmp.set_defaults(func=rm_user_projects)
+
+parser_show = subparsers.add_parser('show', help='shows user details.')
+parser_show.add_argument('username', type=str, help='the name of the user to look in the database')
+parser_show.set_defaults(func=show_user)
+
+parser_pass = subparsers.add_parser('changepass', help='change the password for a existing user.')
+parser_pass.add_argument('username', type=str, help='the name of the user to look in the database')
+parser_pass.add_argument('password', type=str, help='the password for the user, if not set, a password will be randomly generated', nargs='?')
+parser_pass.set_defaults(func=change_pass)
+
+parser_admin = subparsers.add_parser('setadmin', help='change the password for a existing user.')
+parser_admin.add_argument('username', type=str, help='the name of the user to look in the database')
+parser_admin.add_argument('is_admin', type=str, help='either True or False to set/unset as admin', choices=["true", "false"] )
+parser_admin.set_defaults(func=set_admin)
+
+args = parser.parse_args()
+
+if len(sys.argv)==1:
+    parser.print_help()
+    sys.exit(1)
+
+args.func(args)
