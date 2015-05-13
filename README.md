@@ -122,3 +122,22 @@ optional arguments:
 ```
 
 this tool will take care of connecting to the local mongo and make all proper changes to the documents in the users collection, if you want it to be a global command just add it to your $PATH.
+
+
+#### Export tool 
+
+It's located at admintools/exportprojects.py, I have also added a tool to export all documents in the database, in case you want to take your raml/yaml/json/xml files to another place, this tool will export them by default to /tmp/projects
+
+```
+/tmp/projects
+├── project1
+    ├── rootfolder
+    │   ├── developer.yaml
+    │   ├── docs
+    │   │   └── service-details.md
+    │   └── schemas
+    │       ├── api.json
+    │       ├── apinames.json
+    │       └── statusapis.json
+    └── anotherfile.raml
+```
