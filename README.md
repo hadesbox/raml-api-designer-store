@@ -90,7 +90,13 @@ The mongo REST publisher (for the API Console and the proxy) is not started auto
 If you want to (you should) deploy this app over HTTPS use Apache as proxyReverse with your certs.
 
 
-#### Admin Tool.
+### Admin tools
+
+I created two tools located in the admintool folder for managing users, projects, and exporting all ramldata to files in the server local file system. Both are python CLI programs.
+
+#### ramladmin tool.
+
+This only works properlly with __python3__!
 
 The way to administrate the users in the mongodb "users" collection is thru the admin tool provided in the admintool/ramladmin. This tool is a python CLI tool, so first we need to install its dependencies.
 
